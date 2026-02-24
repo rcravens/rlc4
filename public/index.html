@@ -71,6 +71,23 @@
       transform-origin: center;
       transform-box: fill-box;
     }
+
+    @keyframes statusCursor {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    .status-cursor {
+      display: inline-block;
+      margin-left: 2px;
+      animation: statusCursor 0.9s steps(1, end) infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .status-cursor {
+        animation: none;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-slate-100 antialiased">
@@ -286,9 +303,75 @@
         </svg>
       </div>
 
-      <h1 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">Robotic Labs Cell Four</h1>
-      <p class="mt-3 text-lg text-slate-300 sm:text-xl">Covert motion. Classified logistics. Exact outcomes.</p>
+      <h1 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">Research Labs Command Four</h1>
+      <p class="mt-3 text-lg text-slate-300 sm:text-xl">Probe. Map. Breach. Control.</p>
+      <p class="mx-auto mt-4 max-w-3xl text-sm leading-6 text-slate-400 sm:text-base">
+        Research Labs Command Four coordinates compartmentalized technical operations for denied environments,
+        integrating signal acquisition, systems mapping, controlled access, and outcome verification under strict
+        need-to-know protocols. Program scope, partner identities, and deployment records remain restricted by
+        design, but each task package is engineered for low-signature execution, resilient control, and measurable
+        effect.
+      </p>
+      <p class="mx-auto mt-5 max-w-3xl rounded-md border border-cyan-400/20 bg-slate-950/40 px-4 py-3 text-left font-mono text-xs tracking-wide text-cyan-200 sm:text-sm">
+        <span class="text-cyan-300/90">DO NOT DISCONNECT:</span>
+        <span id="tracking-status" class="ml-2 text-cyan-100/90"></span><span class="status-cursor text-cyan-200">_</span>
+      </p>
+      <p class="mt-8 text-sm text-slate-300 sm:text-md">Owned and operated by <a class="hover:underline" href="https://tekfoundry.com" target="_blank">TekFoundry</a></p>
     </section>
   </main>
+  <script>
+    (function () {
+      const statusEl = document.getElementById("tracking-status");
+      if (!statusEl) return;
+
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const steps = [
+        "Session recorded...",
+        "Identity correlation found...",
+        "Location determined...",
+        "Tracking initiated...",
+        "Hardware fingerprint acquired...",
+        "Exploit identified...",
+        "Success!"
+      ];
+
+      if (prefersReducedMotion) {
+        statusEl.textContent = steps.join(" ");
+        return;
+      }
+
+      let stepIndex = 0;
+      let charIndex = 0;
+      let pauseUntil = 0;
+      const nextStepDelay = () => 2000 + Math.floor(Math.random() * 3001);
+
+      function tick(now) {
+        if (now < pauseUntil) {
+          requestAnimationFrame(tick);
+          return;
+        }
+
+        const current = steps.slice(0, stepIndex).join(" ");
+        const next = steps[stepIndex] || "";
+
+        if (charIndex <= next.length) {
+          statusEl.textContent = (current ? current + " " : "") + next.slice(0, charIndex);
+          charIndex += 1;
+          pauseUntil = now + 42;
+        } else if (stepIndex < steps.length - 1) {
+          stepIndex += 1;
+          charIndex = 0;
+          pauseUntil = now + nextStepDelay();
+        } else {
+          statusEl.textContent = steps.join(" ");
+          return;
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      requestAnimationFrame(tick);
+    })();
+  </script>
 </body>
 </html>
